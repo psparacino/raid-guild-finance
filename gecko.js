@@ -1,6 +1,8 @@
 import fetch from 'node-fetch';
 import fs from 'fs';
 
+import COINS from './coins.js';
+
 const query = `
 query moloch($address: String!, $skip: Int!) {
     balances(where: {molochAddress: $address}, first: 1000, skip: $skip, orderBy: timestamp, orderDirection: asc) {
@@ -40,24 +42,12 @@ async function getBalances() {
     }
   }
 
-  async function getCoins() {
-    try {
-        const COINS = await fetch('https://api.coingecko.com/api/v3/coins/list');
-        const coins = await COINS.json();
-      return coins;
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
 
 function unixTimestampToDate(timestamp) {
     
     var date = new Date(timestamp * 1000);
-  
-    // Get the day, month, and year
     var day = date.getDate();
-    var month = date.getMonth() + 1; // Months are zero based
+    var month = date.getMonth() + 1; 
     var year = date.getFullYear();
   
     return `${day}-${month}-${year}`;
@@ -81,7 +71,7 @@ function getCorrectId(tokenId) {
     }
 
 async function createTokenIdObject() {
-    const coins = await getCoins();
+    const coins = COINS;
     const balances = await getBalances();
     const balanceObjects = [];
     balances.map(balance => {
@@ -93,6 +83,7 @@ async function createTokenIdObject() {
     
         match = Object.entries(coins).find(([key, coin]) => {
             return coin.symbol === symbol && coin.symbol !== 'wxdai';
+            // return coin.symbol === symbol;
     
         });
     
@@ -107,5 +98,38 @@ async function createTokenIdObject() {
         });
       
         return balanceObjects;
+  }
+   
 
-}
+  async function getHistoricalTokenValues() {
+    const balances = await createTokenIdObject();
+    let historicalValues = [];
+    const slice = balances.slice(0, 20);
+  
+    for (const balance of slice) {
+      const id = balance.id;
+      const date = balance.date;
+  
+      await new Promise(resolve => setTimeout(resolve, 1500));
+  
+      try {
+        const res = await fetch(
+          `https://api.coingecko.com/api/v3/coins/${id}/history?date=${date}`
+        );
+  
+        const prices = await res.json();
+        const price = await prices.market_data.current_price.usd;
+        const tokenData = { id, date, price };
+        historicalValues.push(tokenData);  
+      } catch (error) {
+        console.error(balance.id, balance.date, error);
+      }
+    }
+  
+    fs.writeFileSync("historicalvalues.js", JSON.stringify(historicalValues, {space: 0}));
+  }
+
+
+
+
+getHistoricalTokenValues();   
