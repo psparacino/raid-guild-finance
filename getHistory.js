@@ -4,7 +4,7 @@ import fs from 'fs';
 import COINS from './coins.js';
 
 const query = `
-query moloch($address: String!, $skip: Int!) {
+query moloch($address: String!) {
     balances(where: {molochAddress: $address}, first: 1000, skip: $skip, orderBy: timestamp, orderDirection: asc) {
       id
       molochAddress
@@ -19,8 +19,7 @@ query moloch($address: String!, $skip: Int!) {
 `;
 
 const variables = {
-  address: "0xfe1084bc16427e5eb7f13fc19bcd4e641f7d571f",
-  skip: 0
+  address: "0xfe1084bc16427e5eb7f13fc19bcd4e641f7d571f"
 };
 
 const url = 'https://api.thegraph.com/subgraphs/name/odyssy-automaton/daohaus-stats-xdai';
@@ -41,6 +40,8 @@ async function getBalances() {
       console.error(error);
     }
   }
+
+// await getBalances();
 
 
 function unixTimestampToDate(timestamp) {
@@ -96,40 +97,57 @@ async function createTokenIdObject() {
             balanceObjects.push(Object.assign({}, { date }, { id }));
           }
         });
-      
         return balanceObjects;
   }
-   
+  
 
   async function getHistoricalTokenValues() {
     const balances = await createTokenIdObject();
+    console.log(balances.length)
     let historicalValues = [];
-    const slice = balances.slice(0, 20);
   
-    for (const balance of slice) {
-      const id = balance.id;
-      const date = balance.date;
+    // Split the list of balances into smaller chunks
+    const chunkSize = 19;
+    for (let i = 0; i < balances.length; i += chunkSize) {
+      const slice = balances.slice(i, i + chunkSize);
   
-      await new Promise(resolve => setTimeout(resolve, 1500));
-  
-      try {
-        const res = await fetch(
-          `https://api.coingecko.com/api/v3/coins/${id}/history?date=${date}`
-        );
-  
-        const prices = await res.json();
-        const price = await prices.market_data.current_price.usd;
-        const tokenData = { id, date, price };
-        historicalValues.push(tokenData);  
-      } catch (error) {
-        console.error(balance.id, balance.date, error);
+      for (const balance of slice) {
+        const id = balance.id;
+        const date = balance.date;
+    
+        await new Promise(resolve => setTimeout(resolve, 8000));
+    
+        try {
+          const res = await fetch(
+            `https://api.coingecko.com/api/v3/coins/${id}/history?date=${date}`
+          );
+          console.log("response", res)
+          const prices = await res.json();
+          const price = await prices.market_data.current_price.usd;
+          const tokenData = { token_name: id, date, price_usd: price };
+          historicalValues.push(tokenData);  
+        } catch (error) {
+          console.error(balance.id, balance.date, error);
+        }
       }
     }
-  
-    fs.writeFileSync("historicalvalues.js", JSON.stringify(historicalValues, {space: 0}));
+      const format = (arr) => {
+        return arr.map((item) => {
+            const date = item.date.split('-').reverse().join('-');
+            const token_name = item.token_name;
+            const price_usd = item.price_usd;
+            return {token_name, date, price_usd}
+        })
+    }
+    
+    const result = await format(historicalValues);
+    console.log( "historicalValues.length", historicalValues.length)
+    fs.writeFileSync("historicalvalues.js", JSON.stringify(result));
   }
+  
+
+    await getHistoricalTokenValues();
 
 
 
-
-getHistoricalTokenValues();   
+// getHistoricalTokenValues();   
