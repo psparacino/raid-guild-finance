@@ -73,13 +73,23 @@ async function listen() {
     const balances = await getBalance(transaction.transactionHash);
 
    
-    balances.length > 0
-      ? (tokens_to_hasura = await getCurrentTokenPrice(balances))
-      : console.log("No balances found/Txn not a token transfer");
+    // balances.length > 0
+    //   ? (tokens_to_hasura = await getCurrentTokenPrice(balances))
+    //   : console.log("No balances found/Txn not a token transfer");
+      // rewrite above with a if statement and return if balances length equals 0 
+      if (balances.length > 0 ) {
+       tokens_to_hasura = await getCurrentTokenPrice(balances)
+      }
+      else {
+        console.log("No balances found/Txn not a token transfer")
+        return;
+      }
+
 
     await tokens_to_hasura;
 
     if (insertedValues.has(tokens_to_hasura.txnID)) {
+      console.log("This txnID has already been inserted")
       return;
     }
 
