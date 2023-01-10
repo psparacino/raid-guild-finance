@@ -42,8 +42,6 @@ async function getBalances() {
   }
 }
 
-// await getBalances();
-
 function unixTimestampToDate(timestamp) {
   var date = new Date(timestamp * 1000);
   var day = date.getDate();
@@ -76,6 +74,7 @@ async function createTokenIdObject() {
   balances.map((balance) => {
     let id;
     let match;
+    let txnID = balance.id;
 
     const symbol =
       balance.tokenSymbol === "UNI-V2"
@@ -85,7 +84,6 @@ async function createTokenIdObject() {
 
     match = Object.entries(coins).find(([key, coin]) => {
       return coin.symbol === symbol && coin.symbol !== "wxdai";
-      // return coin.symbol === symbol;
     });
 
     if (match == undefined) {
@@ -93,7 +91,7 @@ async function createTokenIdObject() {
     } else {
       id = getCorrectId(match[1].id);
 
-      balanceObjects.push(Object.assign({}, { date }, { id }));
+      balanceObjects.push(Object.assign({}, { date }, { id }, { txnID }));
     }
   });
   return balanceObjects;
@@ -101,7 +99,6 @@ async function createTokenIdObject() {
 
 async function getHistoricalTokenValues() {
   const balances = await createTokenIdObject();
-  console.log(balances.length);
   let historicalValues = [];
 
   // Split the list of balances into smaller chunks
@@ -112,6 +109,7 @@ async function getHistoricalTokenValues() {
     for (const balance of slice) {
       const id = balance.id;
       const date = balance.date;
+      const txnID = balance.txnID;
 
       await new Promise((resolve) => setTimeout(resolve, 8000));
 
@@ -122,7 +120,7 @@ async function getHistoricalTokenValues() {
         console.log("response", res);
         const prices = await res.json();
         const price = await prices.market_data.current_price.usd;
-        const tokenData = { token_name: id, date, price_usd: price };
+        const tokenData = { token_name: id, date, price_usd: price, txnID };
         historicalValues.push(tokenData);
       } catch (error) {
         console.error(balance.id, balance.date, error);
@@ -134,15 +132,14 @@ async function getHistoricalTokenValues() {
       const date = item.date.split("-").reverse().join("-");
       const token_name = item.token_name;
       const price_usd = item.price_usd;
-      return { token_name, date, price_usd };
+      const txnID = item.txnID;
+      return { token_name, date, price_usd, txnID };
     });
   };
 
   const result = await format(historicalValues);
   console.log("historicalValues.length", historicalValues.length);
-  fs.writeFileSync("historicalvalues.js", JSON.stringify(result));
+  fs.writeFileSync("historicalvalues-with-txnID.js", JSON.stringify(result));
 }
 
 await getHistoricalTokenValues();
-
-// getHistoricalTokenValues();

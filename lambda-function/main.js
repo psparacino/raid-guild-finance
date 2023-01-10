@@ -1,43 +1,22 @@
-import axios from "axios";
-import { ethers } from "ethers";
-import { abi, address } from "./contract/index.js";
-import { createTokenIdObject, getCurrentTokenPrice } from "./helpers.js";
-import { getPastBalances } from "./queries.js";
+// import axios from "axios";
+// import { ethers } from "ethers";
+// import { abi, address } from "./contract/index.js";
+// import { createTokenIdObject, getCurrentTokenPrice } from "./helpers.js";
+// import { getPastBalances, getBalance } from "./queries.js";
+// import { insertTokenValue } from "./mutations.js";
+// convert above to require
+const abi = require("./contract/index.js");
+const address = require("./contract/index.js");
+const axios = require("axios");
+const ethers = require("ethers");
+const createTokenIdObject = require("./helpers.js");
+const getCurrentTokenPrice = require("./helpers.js");
+const getPastBalances = require("./queries.js");
+const getBalance = require("./queries.js");
+const insertTokenValue = require("./mutations.js");
 
-async function getBalance(transactionHash) {
-  const query = `
-  query balances($address: String!, $transactionHash: String!) {
-    balances(
-      where: {balance_gt: "0", tokenSymbol_not: "WXDAI", molochAddress: $address, transactionHash: $transactionHash}
-    ) {
-      id
-      transactionHash
-      timestamp
-      balance
-      tokenSymbol
-    }
-  }
-    `;
 
-  const url =
-    "https://api.thegraph.com/subgraphs/name/odyssy-automaton/daohaus-stats-xdai";
-
-  const variables = {
-    address: address.MolochAddress,
-    transactionHash: transactionHash,
-  };
-
-  try {
-    const response = await axios.post(url, { query, variables });
-    const balanceArray = response.data.data.balances;
-    const balances = await createTokenIdObject(balanceArray);
-    return balances;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function listen() {
+exports.handler = async function () {
   console.log("Starting...");
 
   let tokens_to_hasura;
@@ -50,7 +29,7 @@ async function listen() {
   const wxdai = "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d";
 
   const provider = new ethers.providers.JsonRpcProvider(
-    "https://rpc.gnosischain.com/"
+    "https://rpc.ankr.com/gnosis"
   );
 
   let wallet = ethers.Wallet.createRandom();
@@ -68,64 +47,27 @@ async function listen() {
       event.transactionHash
     );
 
-    // can move getBalances into getCurrentToken price and pass getBalances the transaction hash
-
     const balances = await getBalance(transaction.transactionHash);
 
-   
-    // balances.length > 0
-    //   ? (tokens_to_hasura = await getCurrentTokenPrice(balances))
-    //   : console.log("No balances found/Txn not a token transfer");
-      // rewrite above with a if statement and return if balances length equals 0 
-      if (balances.length > 0 ) {
-       tokens_to_hasura = await getCurrentTokenPrice(balances)
-      }
-      else {
-        console.log("No balances found/Txn not a token transfer")
-        return;
-      }
-
-
-    await tokens_to_hasura;
+    if (balances.length > 0) {
+      tokens_to_hasura = await getCurrentTokenPrice(balances);
+    } else {
+      console.log("No balances found/Txn not a token transfer");
+      return;
+    }
 
     if (insertedValues.has(tokens_to_hasura.txnID)) {
-      console.log("This txnID has already been inserted")
+      console.log("This txnID has already been inserted");
       return;
     }
 
     // given all events are being listened for, checking to make sure the txnID has not already been inserted
     insertedValues.add(tokens_to_hasura.txnID);
 
-
-    const query = `
-    mutation insertTokenInfo($tokens_to_hasura: [treasury_token_history_insert_input!]!) {
-      insert_treasury_token_history(objects: $tokens_to_hasura) {
-        affected_rows
-      }
-    }
-    `;
-
-    const headers = {
-      "Content-Type": "application/json",
-      "x-hasura-admin-secret": process.env.HASURA_SECRET_KEY,
-    };
-
-    const response = await axios.post("http://localhost:8080/v1/graphql", {
-      query,
-      variables: {
-        tokens_to_hasura,
-      },
-    });
-
-    // const response = await axios.post(process.env.HASURA_URL, {
-    //   query,
-    //   variables: {
-    //     tokens_to_hasura,
-    //   },
-    // }, { headers });
+    const response = await insertTokenValue(tokens_to_hasura);
 
     console.log("Mutation result", response.data);
-  });
-}
 
-await listen();
+    return response.data;
+  });
+};
