@@ -1,8 +1,5 @@
-import COINS from "./data/coins.js";
-// import fetch from "node-fetch";
-// convert above to require
-const fetch = require("node-fetch");
-
+const COINS = require("./data/coins.js");
+const axios = require("axios");
 
 // date needs to be in this format for coingecko and then reversed for hasura
 function unixToDate(timestamp) {
@@ -32,7 +29,7 @@ function getCorrectId(tokenId) {
 
 // export async function createTokenIdObject(balances) {
 // alert below is for testing
-export async function createTokenIdObject() {
+async function createTokenIdObject() {
   const coins = COINS;
   const balanceObjects = [];
   const balances = [
@@ -320,7 +317,7 @@ export async function createTokenIdObject() {
   return balanceObjects;
 }
 
-export async function getCurrentTokenPrice(balances) {
+async function getCurrentTokenPrice(balances) {
   let values = [];
 
   const promises = balances.map(async (balance) => {
@@ -329,11 +326,20 @@ export async function getCurrentTokenPrice(balances) {
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     try {
-      const res = await fetch(`https://api.coingecko.com/api/v3/coins/${id}`);
-      const tokenInfo = await res.json();
-      const price = await tokenInfo.market_data.current_price.usd;
+      const res = await axios.get(
+        `https://api.coingecko.com/api/v3/coins/${id}`
+      );
+      const info = res.data;
+      const price = await info.market_data.current_price.usd;
+      const symbol = await info.symbol;
 
-      const tokenData = { token_name: id, date, price_usd: price, txnID };
+      const tokenData = {
+        token_name: id,
+        date,
+        price_usd: price,
+        txnID,
+        symbol,
+      };
 
       values.push(tokenData);
     } catch (error) {
@@ -345,3 +351,5 @@ export async function getCurrentTokenPrice(balances) {
 
   return values;
 }
+
+module.exports = { createTokenIdObject, getCurrentTokenPrice };

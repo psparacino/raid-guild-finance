@@ -1,13 +1,9 @@
-// import { createTokenIdObject } from "./helpers.js";
-// import { address } from "./contract/index.js";
-// import axios from "axios";
-
-// convert above to require
-const createTokenIdObject = require("./helpers.js");
-const address = require("./contract/index.js");
+const { createTokenIdObject } = require("./helpers.js");
+const address = require("./contract/address.js");
 const axios = require("axios");
 
-export async function getBalance(transactionHash) {
+async function getBalance(transactionHash) {
+  console.log("Transaction Hash", transactionHash);
   const query = `
   query balances($address: String!, $transactionHash: String!) {
     balances(
@@ -40,7 +36,7 @@ export async function getBalance(transactionHash) {
   }
 }
 
-export async function getPastBalances() {
+async function getPastBalances() {
   const query = `
       query moloch($address: String!) {
         balances(where: {molochAddress: $address}, orderBy: timestamp, first: 10, orderDirection: asc) {
@@ -72,3 +68,5 @@ export async function getPastBalances() {
     console.error(error);
   }
 }
+
+module.exports = { getBalance, getPastBalances };
