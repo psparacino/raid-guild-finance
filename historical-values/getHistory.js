@@ -120,7 +120,14 @@ async function getHistoricalTokenValues() {
         console.log("response", res);
         const prices = await res.json();
         const price = await prices.market_data.current_price.usd;
-        const tokenData = { token_name: id, date, price_usd: price, txnID };
+        const symbol = await prices.symbol;
+        const tokenData = {
+          token_name: id,
+          date,
+          price_usd: price,
+          txnID,
+          symbol,
+        };
         historicalValues.push(tokenData);
       } catch (error) {
         console.error(balance.id, balance.date, error);
@@ -133,7 +140,8 @@ async function getHistoricalTokenValues() {
       const token_name = item.token_name;
       const price_usd = item.price_usd;
       const txnID = item.txnID;
-      return { token_name, date, price_usd, txnID };
+      const symbol = item.symbol;
+      return { token_name, date, price_usd, txnID, symbol };
     });
   };
 
