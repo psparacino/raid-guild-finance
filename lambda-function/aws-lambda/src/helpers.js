@@ -1,4 +1,4 @@
-const COINS = require("./data/coins.js");
+const COINS = require("../data/coins.js");
 const axios = require("axios");
 
 // date needs to be in this format for coingecko and then reversed for hasura

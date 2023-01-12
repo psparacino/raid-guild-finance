@@ -1,15 +1,14 @@
 const { abi, address } = require("./contract/index.js");
 const ethers = require("ethers");
-const { getCurrentTokenPrice } = require("./helpers.js");
-const { getBalance } = require("./queries.js");
-const { insertTokenValue } = require("./mutations.js");
+const { getCurrentTokenPrice } = require("./src/helpers.js");
+const { getBalance } = require("./src/queries.js");
+const { insertTokenValue } = require("./src/mutations.js");
 
 exports.handler = async function() {
 // async function main() {
   console.log("Starting...");
 
   let tokens_to_hasura;
-
   const MolochABI = abi.MolochABI;
   const MolochAddress = address.MolochAddress;
 

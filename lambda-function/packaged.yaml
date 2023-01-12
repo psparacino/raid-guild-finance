@@ -1,0 +1,13 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Lambda function for tracking token prices
+Resources:
+  RecordHistoricalPricesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://record-historical-price/e7b166b36ce2503ee90fab32eb5126f1
+      Handler: index.handler
+      Runtime: nodejs18.x
+      Timeout: 3
+    Metadata:
+      SamResourceId: RecordHistoricalPricesFunction

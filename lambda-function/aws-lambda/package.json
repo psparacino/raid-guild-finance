@@ -12,5 +12,6 @@
   "scripts": {
     "prettier": "prettier --write .",
     "main": "node --no-warnings ./main.js"
-  }
+  },
+  "type": "commonjs"
 }

@@ -1,5 +1,5 @@
 const { createTokenIdObject } = require("./helpers.js");
-const address = require("./contract/address.js");
+const address = require("../contract/address.js");
 const axios = require("axios");
 
 async function getBalance(transactionHash) {
