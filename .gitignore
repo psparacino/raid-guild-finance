@@ -1,2 +1,15 @@
 node_modules
 .DS_Store
+.env
+
+# dummy data
+dm-121222
+
+# backup 
+lambda-function
+
+#testing
+test.js
+event.json
+test-helpers.js
+node-script

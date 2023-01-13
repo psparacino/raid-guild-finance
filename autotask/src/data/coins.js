@@ -1,4 +1,4 @@
-export default [
+const COINS = [
   { id: "01coin", symbol: "zoc", name: "01coin" },
   { id: "0chain", symbol: "zcn", name: "Zus" },
   { id: "0x", symbol: "zrx", name: "0x" },
@@ -15168,3 +15168,5 @@ export default [
   { id: "zyrri", symbol: "zyr", name: "Zyrri" },
   { id: "zyx", symbol: "zyx", name: "ZYX" },
 ];
+
+module.exports = COINS;
