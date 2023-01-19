@@ -1,13 +1,9 @@
 const axios = require("axios");
 
-async function insertTokenValue(
-  tokens_to_hasura,
-  HASURA_SECRET_KEY,
-  HASURA_URL
-) {
+async function insertTokenValue(tokenData, HASURA_SECRET_KEY, HASURA_URL) {
   const query = `
-    mutation insertTokenInfo($tokens_to_hasura: [treasury_token_history_insert_input!]!) {
-      insert_treasury_token_history(objects: $tokens_to_hasura) {
+    mutation insertTokenInfo($tokenData: [treasury_token_history_insert_input!]!) {
+      insert_treasury_token_history(objects: $tokenData) {
         affected_rows
       }
     }
@@ -18,19 +14,12 @@ async function insertTokenValue(
     "x-hasura-admin-secret": HASURA_SECRET_KEY,
   };
 
-  // const response = await axios.post("http://localhost:8080/v1/graphql", {
-  //   query,
-  //   variables: {
-  //     tokens_to_hasura,
-  //   },
-  // });
-
   const response = await axios.post(
     HASURA_URL,
     {
       query,
       variables: {
-        tokens_to_hasura,
+        tokenData,
       },
     },
     { headers }

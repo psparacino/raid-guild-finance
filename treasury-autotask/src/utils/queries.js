@@ -2,18 +2,19 @@ const { createTokenIdObject } = require("./helpers.js");
 const address = require("../contract/address.js");
 const axios = require("axios");
 
-async function getBalance(transactionHash) {
-  console.log("Transaction Hash", transactionHash);
+async function getBalances(transactionHash) {
   const query = `
-  query balances($address: String!, $transactionHash: String!) {
-    balances(
-      where: {balance_gt: "0", tokenSymbol_not: "WXDAI", molochAddress: $address, transactionHash: $transactionHash}
-    ) {
-      id
-      transactionHash
-      timestamp
-      balance
-      tokenSymbol
+  query molochTxn($id: String!, $transactionHash: String!) {
+    moloch(id: $id) {
+      balances(where: {transactionHash: $transactionHash, tokenSymbol_not: "WXDAI"}) {
+        id
+        amount
+        balance
+        transactionHash
+        tokenSymbol
+        timestamp
+        action
+      }
     }
   }
     `;
@@ -22,14 +23,16 @@ async function getBalance(transactionHash) {
     "https://api.thegraph.com/subgraphs/name/odyssy-automaton/daohaus-stats-xdai";
 
   const variables = {
-    address: address.MolochAddress,
+    id: address.MolochAddress,
     transactionHash: transactionHash,
   };
 
   try {
     const response = await axios.post(url, { query, variables });
-    const balanceArray = response.data.data.balances;
+
+    const balanceArray = response.data.data.moloch.balances;
     const balances = await createTokenIdObject(balanceArray);
+    
     return balances;
   } catch (error) {
     console.error(error);
@@ -69,4 +72,4 @@ async function getPastBalances() {
   }
 }
 
-module.exports = { getBalance, getPastBalances };
+module.exports = { getBalances, getPastBalances };
