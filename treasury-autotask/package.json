@@ -19,7 +19,9 @@
   "scripts": {
     "prettier": "prettier --write .",
     "main": "node --no-warnings ./main.js",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "update-test": "yarn build && defender-autotask update-code 12220683-d97b-4463-ad36-66195393ba62 ./dist/",
+    "update-treasury": "yarn build && defender-autotask update-code cf58b855-0cbb-45ed-a73b-742d0146231f ./dist/"
   },
   "type": "commonjs"
 }

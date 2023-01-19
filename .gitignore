@@ -9,8 +9,8 @@ dm-121222
 lambda-function
 
 #testing
-test.js
 event.json
-test-helpers.js
 node-script
-test-script.txt
+
+test-*
+dist/

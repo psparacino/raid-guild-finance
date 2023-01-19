@@ -28,10 +28,9 @@ function getCorrectId(tokenId) {
 }
 
 async function createTokenIdObject(balances) {
-
   const coins = COINS;
   const balanceObjects = [];
-  
+
   for (let i = 0; i < balances.length; i++) {
     const balance = balances[i];
 
@@ -57,6 +56,7 @@ async function createTokenIdObject(balances) {
       );
     }
   }
+
   return balanceObjects;
 }
 
