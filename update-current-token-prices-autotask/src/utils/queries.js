@@ -2,7 +2,6 @@ const axios = require("axios");
 require("dotenv").config({ path: "../../../.env" });
 
 async function getTokenSymbols(HASURA_URL, HASURA_SECRET_KEY) {
-
   const query = `
     query getTokenSymbols {
       treasury_token_history {

@@ -1,4 +1,4 @@
-[
+const token_history = [
   {
     token_name: "weth",
     date: "2021-2-18",
@@ -896,3 +896,5 @@
     symbol: "haus",
   },
 ];
+
+export default token_history;
