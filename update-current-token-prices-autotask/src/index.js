@@ -1,16 +1,19 @@
 const { insertCurrentPrice } = require("./utils/mutations.js");
-const { getTokenSymbols } = require("./utils/queries.js");
+const { getTokenIDs, clearTable } = require("./utils/queries.js");
 const axios = require("axios");
 
 exports.handler = async function (event) {
   console.log("Starting...");
   const { HASURA_URL, HASURA_SECRET_KEY } = event.secrets;
 
-  const symbols_set = await getTokenSymbols(HASURA_URL, HASURA_SECRET_KEY);
-  console.log("symbols_set", symbols_set);
+  const ids_set = await getTokenIDs(HASURA_URL, HASURA_SECRET_KEY);
 
-  for (let i = 0; i < symbols_set.length; i++) {
-    const id = await symbols_set[i];
+  const deleteResult = clearTable(HASURA_URL, HASURA_SECRET_KEY);
+
+  console.log(await deleteResult);
+
+  for (let i = 0; i < ids_set.length; i++) {
+    const id = await ids_set[i];
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
@@ -21,7 +24,7 @@ exports.handler = async function (event) {
 
       const price_usd = res.data.market_data.current_price.usd;
 
-      const current_token_price = { symbol: id, price_usd };
+      const current_token_price = { token_name: id, price_usd };
 
       const result = await insertCurrentPrice(
         current_token_price,
@@ -29,7 +32,7 @@ exports.handler = async function (event) {
         HASURA_URL
       );
 
-      console.log("Response result: ", result.status);
+      console.log("Response result: ", id, result.status);
     } catch (error) {
       console.error("coingecko api error or hasura error", error);
     }

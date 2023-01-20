@@ -1,5 +1,5 @@
 import axios from "axios";
-import token_history from "./historicalvalues-with-txnID.js";
+import token_history from "./historicalvalues.js";
 import dotenv from "dotenv";
 dotenv.config({ path: "../.env" });
 
@@ -12,13 +12,12 @@ async function insertTokenValue() {
     }
     `;
 
-const { TEST_HASURA_SECRET_KEY, TEST_HASURA_URL } = process.env;
+  const { TEST_HASURA_SECRET_KEY, TEST_HASURA_URL } = process.env;
 
   const headers = {
     "Content-Type": "application/json",
     "x-hasura-admin-secret": TEST_HASURA_SECRET_KEY,
   };
-
 
   const response = await axios.post(
     TEST_HASURA_URL,

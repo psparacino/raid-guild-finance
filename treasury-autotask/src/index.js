@@ -48,6 +48,5 @@ exports.handler = async function (event) {
 
   console.log("Mutation result: ", response.data);
 
-
   return "Log Successful";
 };

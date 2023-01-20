@@ -10,8 +10,7 @@ async function insertCurrentPrice(
       insert_current_token_prices(objects: $current_token_price) {
         affected_rows
       }
-    }
-    `;
+    }`;
 
   const headers = {
     "Content-Type": "application/json",

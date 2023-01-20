@@ -117,7 +117,7 @@ async function getHistoricalTokenValues() {
         const res = await fetch(
           `https://api.coingecko.com/api/v3/coins/${id}/history?date=${date}`
         );
-        console.log("response", res);
+        console.log("response", id, res.status);
         const prices = await res.json();
         const price = await prices.market_data.current_price.usd;
         const symbol = await prices.symbol;
@@ -147,7 +147,7 @@ async function getHistoricalTokenValues() {
 
   const result = await format(historicalValues);
   console.log("historicalValues.length", historicalValues.length);
-  fs.writeFileSync("historicalvalues-with-txnID.js", JSON.stringify(result));
+  fs.writeFileSync("historicalvalues.js", JSON.stringify(result));
 }
 
 await getHistoricalTokenValues();
