@@ -12,15 +12,16 @@ async function insertTokenValue() {
     }
     `;
 
-  const { TEST_HASURA_SECRET_KEY, TEST_HASURA_URL } = process.env;
+  // const { TEST_HASURA_SECRET_KEY, TEST_HASURA_URL } = process.env;
+  const { DM_HASURA_SECRET_KEY, DM_HASURA_URL } = process.env;
 
   const headers = {
     "Content-Type": "application/json",
-    "x-hasura-admin-secret": TEST_HASURA_SECRET_KEY,
+    "x-hasura-admin-secret": DM_HASURA_SECRET_KEY,
   };
 
   const response = await axios.post(
-    TEST_HASURA_URL,
+    DM_HASURA_URL,
     {
       query,
       variables: {

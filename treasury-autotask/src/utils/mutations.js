@@ -18,7 +18,6 @@ async function insertTokenValue(
     "x-hasura-admin-secret": HASURA_SECRET_KEY,
   };
 
-
   const response = await axios.post(
     HASURA_URL,
     {

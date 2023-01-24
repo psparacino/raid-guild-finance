@@ -32,44 +32,11 @@ async function getBalances(transactionHash) {
 
     const balanceArray = response.data.data.moloch.balances;
     const balances = await createTokenIdObject(balanceArray);
-    
+
     return balances;
   } catch (error) {
     console.error(error);
   }
 }
 
-async function getPastBalances() {
-  const query = `
-      query moloch($address: String!) {
-        balances(where: {molochAddress: $address}, orderBy: timestamp, first: 10, orderDirection: asc) {
-          id
-          molochAddress
-          transactionHash
-          timestamp
-          balance
-          tokenSymbol
-          tokenAddress
-          amount
-        }
-      }
-      `;
-
-  const url =
-    "https://api.thegraph.com/subgraphs/name/odyssy-automaton/daohaus-stats-xdai";
-
-  const variables = {
-    address: address.MolochAddress,
-  };
-
-  try {
-    const response = await axios.post(url, { query, variables });
-    const balanceArray = response.data.data.balances;
-    const balances = await createTokenIdObject(balanceArray);
-    return balances;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-module.exports = { getBalances, getPastBalances };
+module.exports = { getBalances };
