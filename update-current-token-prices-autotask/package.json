@@ -5,7 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^1.2.2",
-    "defender-autotask-client": "^1.37.0",
+    "defender-autotask-client": "^1.38.0",
     "defender-relay-client": "^1.37.0",
     "dotenv": "^16.0.3",
     "ethers": "^5.7.2"

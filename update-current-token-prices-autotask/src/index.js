@@ -24,7 +24,9 @@ exports.handler = async function (event) {
 
       const price_usd = res.data.market_data.current_price.usd;
 
-      const current_token_price = { token_name: id, price_usd };
+      const symbol = res.data.market_data.symbol;
+
+      const current_token_price = { token_name: id, price_usd, symbol };
 
       const result = await insertCurrentPrice(
         current_token_price,
